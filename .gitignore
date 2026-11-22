@@ -1,0 +1,11 @@
+# Never commit a copy of the page with an API key pasted into it
+*.keyed.html
+statskill.html
+.env
+.env.*
+
+# Local tooling
+.netlify/
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<!--
+  StatSkill — AI competency assessment for India's Official Statistical System
+  Smart India Hackathon 2026 · Problem Statement SIH26101
+  Ministry of Statistics and Programme Implementation
+
+  Author : Jeevesh Dev
+  Team   : DevOOPS · OCT, CSE-B, First Year
+  Licence: MIT (see LICENSE)
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Jeevesh Dev">
+<meta name="description" content="StatSkill: turns training material into a competency assessment and recommends iGOT Karmayogi and NSSTA courses for each gap. Built by Jeevesh Dev, Team DevOOPS, for SIH26101.">
+<title>StatSkill — Competency Assessment for the Official Statistical System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --ink:#14171A;
+  --paper:#FFFFFF;
+  --wash:#F3F2EE;
+  --rule:#DDDBD3;
+  --muted:#6B6D68;
+  --pine:#1B4D3E;
+  --pine-soft:#E8EFEB;
+  --brick:#9C3A28;
+  --brick-soft:#F7EBE8;
+  --gold:#C08A2E;
+  --serif:"Newsreader",Georgia,serif;
+  --sans:"Archivo",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --shadow:0 1px 2px rgba(20,23,26,.05), 0 8px 24px -12px rgba(20,23,26,.12);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--wash); color:var(--ink);
+  font-family:var(--sans); font-size:16.5px; line-height:1.55;
+  font-variant-numeric:tabular-nums;
+}
+.hide{display:none !important}
+
+/* ================= MASTHEAD ================= */
+.masthead{background:var(--ink); color:#fff; padding:34px 0 30px}
+.bar{max-width:900px; margin:0 auto; padding:0 28px}
+.crest{
+  display:inline-flex; align-items:center; gap:9px; font-size:12px;
+  letter-spacing:.09em; text-transform:uppercase; color:#A6A9A3; margin-bottom:16px;
+}
+.crest i{width:22px; height:2px; background:var(--gold); display:block}
+.masthead h1{
+  font-family:var(--serif); font-weight:500; font-size:44px; line-height:1.05;
+  margin:0 0 12px; letter-spacing:-.015em;
+}
+.masthead h1 em{font-style:italic; color:var(--gold)}
+.masthead p{margin:0; color:#C7CAC4; font-size:17px; max-width:54ch; line-height:1.5}
+
+/* ================= PROGRESS RAIL ================= */
+.rail{max-width:900px; margin:0 auto; padding:0 28px; display:flex; gap:2px; transform:translateY(-1px)}
+.rail div{
+  flex:1; background:#23272B; color:#8C908A; padding:13px 15px 12px;
+  font-size:12.5px; letter-spacing:.03em; display:flex; gap:9px; align-items:center;
+  border-top:3px solid #23272B; transition:background .25s, color .25s;
+}
+.rail .n{
+  font-family:var(--serif); font-size:15px; width:20px; flex-shrink:0;
+  text-align:center; color:#5E625C;
+}
+.rail div.on{background:var(--paper); color:var(--ink); border-top-color:var(--gold); font-weight:500}
+.rail div.on .n{color:var(--gold)}
+.rail div.done{background:#2E3439; color:#C7CAC4}
+.rail div.done .n{color:var(--gold)}
+
+/* ================= SHELL ================= */
+.wrap{max-width:900px; margin:0 auto; padding:0 28px 90px}
+main{background:var(--paper); box-shadow:var(--shadow); padding:44px 46px 40px}
+@media(max-width:640px){ main{padding:30px 24px} }
+
+.kicker{
+  font-size:11.5px; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--muted); margin:0 0 9px; font-weight:600;
+}
+h2{font-family:var(--serif); font-size:31px; font-weight:500; line-height:1.15; margin:0 0 10px; letter-spacing:-.01em}
+.lede{color:var(--muted); font-size:16px; margin:0 0 28px; max-width:60ch; line-height:1.55}
+
+/* ================= UPLOAD ================= */
+.drop{
+  border:1.5px dashed var(--rule); border-radius:2px; padding:44px 26px; text-align:center;
+  background:var(--wash); cursor:pointer; transition:border-color .18s, background .18s;
+}
+.drop:hover,.drop:focus-visible{border-color:var(--pine); background:var(--pine-soft); outline:none}
+.drop .ic{
+  width:38px; height:38px; margin:0 auto 14px; border:1.5px solid var(--pine);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:19px; color:var(--pine); line-height:1;
+}
+.drop strong{display:block; font-family:var(--serif); font-size:20px; font-weight:500; margin-bottom:5px}
+.drop span{font-size:14.5px; color:var(--muted)}
+
+.filerow{
+  display:flex; justify-content:space-between; align-items:center; gap:14px;
+  background:var(--pine-soft); border-left:3px solid var(--pine);
+  padding:14px 17px; margin-top:16px; font-size:14.5px;
+}
+.filerow b{font-weight:500}
+.filerow .meta{display:flex; align-items:center; gap:14px; flex-shrink:0}
+.filerow span{color:var(--muted); font-size:13.5px; white-space:nowrap}
+.linkbtn{
+  background:none; border:0; padding:0; font-size:13.5px; color:var(--brick);
+  text-decoration:underline; cursor:pointer; font-family:var(--sans); font-weight:400;
+}
+.linkbtn:hover{background:none; opacity:.75}
+
+.keystate{
+  display:inline-flex; align-items:center; gap:8px; font-size:13px;
+  padding:7px 13px; margin-bottom:18px; background:var(--wash); color:var(--muted);
+}
+.keystate .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0}
+.keystate.on{background:var(--pine-soft); color:var(--pine)}
+.keystate.on .dot{background:var(--pine)}
+.keystate.off .dot{background:var(--gold)}
+
+.prov{
+  padding:13px 17px; margin-bottom:24px; font-size:14.5px; line-height:1.5;
+  border-left:3px solid var(--pine); background:var(--pine-soft); color:var(--pine);
+}
+.prov.fallback{border-left-color:var(--gold); background:#FBF4E6; color:#6E5518}
+.prov b{font-weight:600}
+.prov .why{display:block; margin-top:5px; color:var(--brick); font-size:13.5px}
+
+.status{
+  margin-top:18px; font-size:14.5px; color:var(--muted); min-height:24px;
+  display:flex; align-items:center; gap:10px;
+}
+.status b{color:var(--ink); font-weight:500}
+.spin{
+  width:13px; height:13px; border:2px solid var(--rule); border-top-color:var(--pine);
+  border-radius:50%; animation:sp .7s linear infinite; flex-shrink:0;
+}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ================= BUTTONS ================= */
+button{
+  font-family:var(--sans); font-size:15px; font-weight:500; cursor:pointer;
+  border:1.5px solid var(--ink); background:var(--ink); color:#fff;
+  padding:13px 26px; border-radius:2px; transition:background .16s, color .16s, opacity .16s;
+}
+button:hover{background:#2E3439}
+button:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+button:disabled{opacity:.32; cursor:not-allowed}
+button.ghost{background:transparent; color:var(--ink); border-color:var(--rule)}
+button.ghost:hover{background:var(--wash); border-color:var(--ink)}
+.actions{display:flex; gap:11px; flex-wrap:wrap; margin-top:30px; align-items:center}
+.hint{font-size:13px; color:var(--muted); margin-left:auto}
+
+/* ================= GENERATED LIST ================= */
+.gen{margin:0; padding:0; border-top:1px solid var(--rule)}
+.gen li{
+  list-style:none; border-bottom:1px solid var(--rule); padding:14px 0;
+  display:flex; gap:16px; align-items:baseline; font-size:15px;
+}
+.gen li .no{color:var(--muted); font-size:13.5px; width:20px; flex-shrink:0}
+.gen li .txt{flex:1; color:var(--ink)}
+.gen li .txt em{font-style:normal; color:var(--muted)}
+.tag{
+  font-size:11px; font-weight:600; letter-spacing:.05em; color:var(--pine);
+  background:var(--pine-soft); padding:4px 9px; white-space:nowrap; flex-shrink:0;
+}
+
+/* ================= QUIZ ================= */
+.track-top{height:4px; background:var(--wash); margin:-44px -46px 34px}
+.track-top i{display:block; height:4px; background:var(--pine); transition:width .35s ease}
+@media(max-width:640px){ .track-top{margin:-30px -24px 26px} }
+.qhead{display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:20px; flex-wrap:wrap}
+.qcount{font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.qtext{
+  font-family:var(--serif); font-size:25px; line-height:1.38; font-weight:400;
+  margin:0 0 28px; letter-spacing:-.005em;
+}
+.opt{
+  display:flex; gap:15px; align-items:flex-start; width:100%; text-align:left;
+  background:var(--paper); border:1.5px solid var(--rule); color:var(--ink);
+  font-weight:400; font-size:16px; line-height:1.45; padding:16px 19px; margin-bottom:10px;
+}
+.opt:hover{background:var(--wash); border-color:#B6B4AC}
+.opt .letter{
+  font-family:var(--serif); font-size:15px; color:var(--muted); flex-shrink:0;
+  width:22px; height:22px; border:1px solid var(--rule); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; margin-top:1px;
+}
+.opt.pick{border-color:var(--pine); background:var(--pine-soft)}
+.opt.pick .letter{background:var(--pine); border-color:var(--pine); color:#fff}
+
+/* ================= RESULTS ================= */
+.scorecard{
+  display:flex; gap:34px; align-items:center; flex-wrap:wrap;
+  background:var(--ink); color:#fff; padding:30px 34px; margin-bottom:36px;
+}
+.scorecard .big{font-family:var(--serif); font-size:62px; font-weight:500; line-height:.95; color:var(--gold)}
+.scorecard p{margin:0; color:#C7CAC4; font-size:15.5px; max-width:38ch; line-height:1.5}
+.scorecard p b{color:#fff; font-weight:500}
+
+h3{
+  font-size:12px; letter-spacing:.11em; text-transform:uppercase; font-weight:600;
+  margin:0 0 18px; padding-bottom:9px; border-bottom:2px solid var(--ink);
+}
+.block{margin-bottom:40px}
+
+.grow{display:grid; grid-template-columns:1fr 200px 74px; gap:16px; align-items:center; margin-bottom:14px; font-size:15px}
+.grow .lbl{font-weight:500}
+.grow .lbl em{display:block; font-style:normal; font-size:12.5px; color:var(--muted); font-weight:400}
+.trk{height:24px; background:var(--wash); position:relative}
+.trk i{display:block; height:24px; transition:width .5s ease}
+.trk .thresh{position:absolute; left:60%; top:-3px; bottom:-3px; width:1px; border-left:1px dashed #A8AAA4}
+.val{text-align:right; font-size:16px; font-weight:600}
+.legend{font-size:12.5px; color:var(--muted); margin-top:14px}
+
+.gapcard{
+  border-left:3px solid var(--brick); background:var(--brick-soft);
+  padding:15px 19px; margin-bottom:11px;
+}
+.gapcard b{font-size:15.5px; font-weight:600; display:block; margin-bottom:3px}
+.gapcard span{font-size:14px; color:#5E4A45; line-height:1.5}
+
+.course{
+  display:flex; justify-content:space-between; gap:20px; align-items:flex-start;
+  border:1px solid var(--rule); padding:17px 20px; margin-bottom:11px;
+  text-decoration:none; color:inherit; transition:border-color .16s, background .16s;
+}
+a.course:hover{border-color:var(--pine); background:var(--pine-soft)}
+a.course:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+.course b{font-family:var(--serif); font-size:18px; font-weight:500; display:block; margin-bottom:5px}
+a.course:hover b{color:var(--pine)}
+.course .meta{font-size:13.5px; color:var(--muted)}
+.course .right{display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink:0}
+.course .src{
+  font-size:11px; font-weight:600; letter-spacing:.05em; padding:4px 9px;
+  background:var(--wash); color:var(--muted); white-space:nowrap;
+}
+.course .open{font-size:12.5px; color:var(--pine); font-weight:500; white-space:nowrap}
+.course .open.cal{color:var(--gold)}
+.empty{color:var(--muted); font-size:15px; margin:0}
+
+footer{
+  max-width:900px; margin:0 auto; padding:22px 28px 0; font-size:12.5px;
+  color:var(--muted); line-height:1.6;
+}
+footer .note{margin:0 0 12px}
+footer .sig{
+  margin:0; padding-top:12px; border-top:1px solid var(--rule);
+  font-size:12.5px; letter-spacing:.02em;
+}
+footer .sig b{color:var(--ink); font-weight:600}
+@media(max-width:640px){
+  .masthead h1{font-size:32px}
+  .rail div span:not(.n){display:none}
+  .rail div{justify-content:center}
+  .grow{grid-template-columns:1fr 90px 52px; gap:10px}
+  .qtext{font-size:21px}
+  .scorecard{padding:24px; gap:20px}
+  .scorecard .big{font-size:48px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="bar">
+    <div class="crest"><i></i> SIH26101 · Ministry of Statistics and Programme Implementation</div>
+    <h1>Stat<em>Skill</em></h1>
+    <p>Turns training material into a competency assessment, then shows an officer exactly
+    which skills are weak and which courses close the gap.</p>
+  </div>
+</div>
+
+<div class="rail" id="rail">
+  <div class="on"><span class="n">1</span><span>Material</span></div>
+  <div><span class="n">2</span><span>Questions</span></div>
+  <div><span class="n">3</span><span>Assessment</span></div>
+  <div><span class="n">4</span><span>Gaps &amp; courses</span></div>
+</div>
+
+<div class="wrap">
+<main>
+
+<!-- ============ STAGE 1 ============ -->
+<div id="s1">
+  <p class="kicker">Step one</p>
+  <h2>Upload training material</h2>
+  <p class="lede">A trainer uploads a course document. StatSkill reads it and writes assessment
+  questions, each tied to a single competency from the framework for official statistics.</p>
+
+  <div class="keystate" id="keystate"></div>
+
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a file to upload">
+    <div class="ic">↑</div>
+    <strong>Choose a PDF or text file</strong>
+    <span>Sampling methods, price statistics, data quality — any training document</span>
+  </div>
+  <input type="file" id="file" accept=".pdf,.txt,.md" hidden>
+
+  <div class="filerow hide" id="filerow">
+    <b id="fname"></b>
+    <span class="meta"><span id="fsize"></span><button class="linkbtn" id="clear">Remove</button></span>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="actions">
+    <button id="go" disabled>Generate questions</button>
+    <button class="ghost" id="skip">Use sample question set</button>
+  </div>
+</div>
+
+<!-- ============ STAGE 2 ============ -->
+<div id="s2" class="hide">
+  <p class="kicker">Step two</p>
+  <h2>Questions generated</h2>
+  <div class="prov" id="prov"></div>
+  <p class="lede">Every question carries the competency it tests. That tag is what makes gap
+  analysis possible — without it, a score is just a number.</p>
+  <ul class="gen" id="genlist"></ul>
+  <div class="actions">
+    <button id="start">Begin assessment</button>
+    <button class="ghost" id="quml">Export as QuML</button>
+    <span class="hint">QuML is the format the government's own assessment engine reads</span>
+  </div>
+</div>
+
+<!-- ============ STAGE 3 ============ -->
+<div id="s3" class="hide">
+  <div class="track-top"><i id="prog" style="width:0%"></i></div>
+  <div class="qhead">
+    <span class="qcount" id="qnum"></span>
+    <span class="tag" id="qtag"></span>
+  </div>
+  <p class="qtext" id="qtext"></p>
+  <div id="opts"></div>
+  <div class="actions">
+    <button id="next" disabled>Next question</button>
+    <span class="hint">Press 1–4 to choose, Enter to continue</span>
+  </div>
+</div>
+
+<!-- ============ STAGE 4 ============ -->
+<div id="s4" class="hide">
+  <p class="kicker">Step four</p>
+  <h2>Competency profile</h2>
+
+  <div class="scorecard">
+    <span class="big" id="pct"></span>
+    <p id="verdict"></p>
+  </div>
+
+  <div class="block">
+    <h3>Strength by domain</h3>
+    <div id="domains"></div>
+    <p class="legend">Dashed line marks the 60 per cent threshold. Anything below it is treated as a competency gap.</p>
+  </div>
+
+  <div class="block">
+    <h3>Identified gaps</h3>
+    <div id="gaps"></div>
+  </div>
+
+  <div class="block">
+    <h3>Recommended training</h3>
+    <div id="courses"></div>
+    <p class="legend">All 33 competencies resolve to a real destination. <b>Open course</b> goes straight
+    to the course page on iGOT Karmayogi or NPTEL using its real course ID. <b>Open calendar</b> opens the
+    NSSTA training calendar on mospi.gov.in, which is where that classroom programme is scheduled.
+    Sources: iGOT course lists published by NIEPVD, Maharashtra GAD and DVET, and the official Karmayogi
+    Saptah recommendation list.</p>
+  </div>
+
+  <div class="actions">
+    <button class="ghost" id="again">Run again</button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<footer>
+  <p class="note">Prototype · Competency domains follow problem statement SIH26101. Course titles are
+  placeholders pending the live iGOT Karmayogi and NSSTA catalogues. Generated questions are reviewed
+  by a subject expert before release to officers.</p>
+  <p class="sig">Built by <b>Jeevesh Dev</b> · Team <b>DevOOPS</b> · OCT, CSE-B, First Year
+  · Smart India Hackathon 2026 · SIH26101</p>
+</footer>
+
+<script>
+/* ============================================================================
+   StatSkill — AI Competency Assessment for India's Official Statistical System
+
+   Smart India Hackathon 2026  ·  Problem Statement SIH26101
+   Ministry of Statistics and Programme Implementation
+
+   Team     DevOOPS  ·  OCT, CSE-B, First Year
+   Author   Jeevesh Dev
+   Files    index.html (this page) + netlify/edge-functions/generate.js
+            The Gemini key lives on Netlify as GEMINI_API_KEY, never in this file.
+
+   ---------------------------------------------------------------------------
+   WHAT IT DOES
+
+   A trainer uploads a training document. The app pulls the text out of it, asks
+   an AI to write ten multiple-choice questions from that text, and tags every
+   question with the ONE competency it tests. An officer answers the questions;
+   scores are grouped by competency and rolled up into the four domains the
+   problem statement defines. Domains below 60% become named gaps, and each gap
+   is matched to the course that closes it.
+
+   The competency tag is the whole idea. Without it a score is just a number.
+   With it, a score becomes a diagnosis that points at specific training.
+
+   ---------------------------------------------------------------------------
+   HOW THIS FILE IS ORGANISED
+
+     1  CONFIG          where the question generator lives — the only line to edit
+     2  SEED QUESTIONS  ten reviewed questions, used when the AI is unavailable
+     3  COURSES         catalogue of 29 courses, and how their links are built
+     4  COMPETENCIES    the 33 competencies named in the problem statement
+     5  READING         extracting text from an uploaded PDF
+     6  VALIDATION      rejecting anything malformed before a learner sees it
+     7  GENERATION      sends the document text to the server function
+     8  QuML EXPORT     output in the format iGOT's assessment engine reads
+     9  SCREEN FLOW     moving between the four stages
+    10  ASSESSMENT      showing questions and collecting answers
+    11  RESULTS         scoring, gap analysis and recommendations
+
+   ---------------------------------------------------------------------------
+   THE RULE THAT SHAPES MOST OF THIS CODE
+
+   The app must never show a blank screen. Every failure path leads somewhere
+   usable: a retired model name moves to the next model, a busy server is
+   retried, a truncated AI reply is salvaged question by question, and if all of
+   that fails the seed questions run instead. Failures are reported honestly on
+   screen rather than hidden, because a silent fallback is worse than a visible
+   one — you cannot fix what you cannot see.
+   ============================================================================ */
+/* ==========================================================================
+   1. CONFIG
+
+   There is NO API key in this file, on purpose. Anyone can read a web page's
+   source, so the key lives on Netlify as an environment variable called
+   GEMINI_API_KEY. A small server function (netlify/edge-functions/generate.js)
+   reads it, calls Gemini, and returns only the questions.
+
+   NETLIFY_SITE is your Netlify address. When this page is opened from Netlify,
+   it calls the function on the same site. When it is opened from GitHub Pages
+   or straight from disk, it calls the function at NETLIFY_SITE instead, so the
+   GitHub copy gets live AI too, still without exposing the key.
+   ========================================================================== */
+const NETLIFY_SITE = "https://benevolent-nasturtium-637b58.netlify.app";
+
+const AI_ENDPOINT = /\.netlify\.app$/i.test(location.hostname)
+  ? "/api/generate"
+  : NETLIFY_SITE.replace(/\/+$/, "") + "/api/generate";
+
+/* ==========================================================================
+   2. SEED QUESTION BANK
+   Used when no key is set, and as the safety net if generation ever fails.
+   To add a question, copy a block and change the fields.
+   ========================================================================== */
+const BANK = [
+  { outcome:"STAT-02-a", comp:"Sampling", domain:"Statistical",
+    q:"A survey stratifies districts by urbanisation before sampling villages within each stratum. Compared with simple random sampling of the same size, what is the expected effect on the variance of a state-level estimate?",
+    options:["Variance falls, because within-stratum variation is smaller than overall variation",
+             "Variance rises, because stratification adds a second stage of selection",
+             "Variance is unchanged, since the total sample size is the same",
+             "Variance becomes impossible to estimate without a design effect correction"],
+    answer:0,
+    why:"Stratification groups similar units together. Because variation inside each stratum is smaller than variation across the whole population, the estimate is more precise for the same sample size." },
+
+  { outcome:"STAT-04-b", comp:"Price Statistics", domain:"Statistical",
+    q:"An item's price rises from ₹40 to ₹50 and it carries a weight of 6 per cent in the group. What is its contribution to the group index, taking the base as 100?",
+    options:["7.5 points","1.5 points","10.0 points","6.0 points"],
+    answer:0,
+    why:"The price relative is 50/40 × 100 = 125. Weighted contribution is 125 × 0.06 = 7.5 index points." },
+
+  { outcome:"STAT-01-b", comp:"Survey Design", domain:"Statistical",
+    q:"A consumption survey asks households to recall spending on food over the past 30 days and on clothing over the past 365 days. What is the main reason for using different reference periods?",
+    options:["Frequently purchased items are recalled accurately only over short periods",
+             "Longer reference periods reduce the total number of households needed",
+             "Clothing prices change more slowly than food prices",
+             "Statistical software requires uniform annualised inputs"],
+    answer:0,
+    why:"Recall accuracy falls as the period lengthens, but rare purchases need a long window to be captured at all. Reference periods are matched to purchase frequency." },
+
+  { outcome:"STAT-10-b", comp:"Data Quality Frameworks", domain:"Statistical",
+    q:"Of 8,000 sampled households, 6,800 responded. What is the non-response rate, and why does it matter beyond sample size?",
+    options:["15 per cent — non-respondents may differ systematically from respondents",
+             "15 per cent — it only reduces precision, introducing no bias",
+             "85 per cent — it measures the achieved sample",
+             "12 per cent — it is calculated against the responding total"],
+    answer:0,
+    why:"1,200 of 8,000 is 15 per cent. The real risk is bias: if those who did not respond differ from those who did, weighting the achieved sample up will not fix it." },
+
+  { outcome:"TECH-01-a", comp:"Python", domain:"Technical",
+    q:"A survey dataset has one row per household with twelve monthly expenditure columns. Which pandas operation converts it to one row per household-month?",
+    options:["df.melt() to move columns into rows",
+             "df.pivot() to spread rows into columns",
+             "df.groupby() to aggregate by household",
+             "df.merge() to join on the household identifier"],
+    answer:0,
+    why:"melt reshapes wide to long, turning the twelve month columns into a month column and a value column." },
+
+  { outcome:"TECH-03-a", comp:"SQL", domain:"Technical",
+    q:"You need each district's total expenditure alongside every individual household row, without collapsing the rows. What handles this in one query?",
+    options:["A window function such as SUM(...) OVER (PARTITION BY district)",
+             "GROUP BY district with SUM(expenditure)",
+             "A LEFT JOIN of the table onto itself",
+             "SELECT DISTINCT district with an ORDER BY"],
+    answer:0,
+    why:"A window function computes an aggregate across a partition while keeping every original row. GROUP BY would collapse them to one row per district." },
+
+  { outcome:"TECH-09-b", comp:"AI / ML", domain:"Technical",
+    q:"A model flagging suspect survey records has precision 0.95 and recall 0.40. What does this mean in practice?",
+    options:["Flags are usually correct, but most bad records go undetected",
+             "Most bad records are caught, but many flags are false alarms",
+             "The model performs well on both measures",
+             "The model is overfitted to the training data"],
+    answer:0,
+    why:"High precision means the flags it raises are trustworthy. Low recall means it is missing 60 per cent of the records it should have caught." },
+
+  { outcome:"DGOV-02-b", comp:"Data Privacy", domain:"Digital Governance",
+    q:"Before releasing household microdata, which action best reduces the risk of identifying an individual respondent?",
+    options:["Suppress or collapse cells where very few households share a rare combination of attributes",
+             "Remove the name field and publish everything else unchanged",
+             "Publish only to registered researchers with no changes to the data",
+             "Round every monetary value to the nearest rupee"],
+    answer:0,
+    why:"Names are not the risk. A rare combination of age, occupation, location and household size can identify someone on its own, so small cells are suppressed or collapsed." },
+
+  { outcome:"BEHV-04-a", comp:"Ethics", domain:"Behavioural & Managerial",
+    q:"A senior official asks that an unfavourable release be delayed until after an unrelated announcement. Which principle of official statistics speaks most directly to this?",
+    options:["Statistics must be released on a pre-announced, impartial schedule",
+             "Statistical agencies should consult stakeholders before publishing",
+             "Confidentiality of individual respondents must be protected",
+             "Agencies should use the most cost-effective collection methods"],
+    answer:0,
+    why:"Impartiality and a pre-announced release calendar protect statistics from being timed for political convenience. That is the safeguard being tested here." },
+
+  { outcome:"BEHV-02-a", comp:"Communication", domain:"Behavioural & Managerial",
+    q:"An estimate is 6.2 per cent with a 95 per cent confidence interval of 5.8 to 6.6. How should this be conveyed in a press note?",
+    options:["Report 6.2 per cent and state the range within which the true value very likely falls",
+             "Report 6.2 per cent alone, since the interval will confuse readers",
+             "Report the range only, since a single figure implies false precision",
+             "Report 6.2 per cent and note the result is not statistically significant"],
+    answer:0,
+    why:"Readers need the headline figure to be usable and the interval to understand its precision. Dropping either misleads, and significance is a different claim entirely." }
+];
+
+/* ==========================================================================
+   3a. COURSE LINKS  —  every course below is real and sourced
+
+   tier "live"  : a real iGOT Karmayogi course with a real course ID. The link
+                  opens that course page directly.
+                  IDs taken from course lists published by the Ministry of
+                  Social Justice (NIEPVD), the Maharashtra GAD and DVET
+                  SADHANA Saptah circulars, and the MoSPI/NSSTA office
+                  memorandum of 1 April 2026. Cross-checked across sources.
+
+   tier "named" : a real NSSTA programme or module named in MoSPI government
+                  documents (NSSTA OM Annexure II, and the NSSTA training
+                  calendar). Classroom and e-learning programmes have no
+                  per-course URL, so these open nssta.gov.in.
+
+   tier "ind"   : no confirmed course yet. Opens the platform that would run it.
+
+   Nothing links to a search results page.
+   ========================================================================== */
+const IGOT_TOC  = "https://portal.igotkarmayogi.gov.in/app/toc/";
+const IGOT_HOME = "https://igotkarmayogi.gov.in/public/home";
+const NSSTA_URL = "https://nssta.gov.in";
+
+const LINK_OVERRIDES = {};   // paste any real URL here as "COURSE-ID": "https://..."
+
+function courseLink(c){
+  if(LINK_OVERRIDES[c.id]) return LINK_OVERRIDES[c.id];
+  if(c.doid) return IGOT_TOC + c.doid + "/overview";
+  if(c.ext)  return IGOT_TOC + "ext/" + c.ext;
+  return c.tier === "named" ? NSSTA_URL : IGOT_HOME;
+}
+
+/* ==========================================================================
+   3b. COURSE CATALOGUE  —  all 33 competencies covered
+   ========================================================================== */
+const COURSES = [
+  /* ---------- TIER 1: live iGOT courses, real IDs ---------- */
+  { id:"IG-AI1", src:"iGOT", hrs:1.3, tier:"live", by:"IISc Bengaluru",
+    doid:"do_1142424672815677441135",
+    title:"AI in Government: Transforming Public Service Delivery", comps:["AI / ML"] },
+  { id:"IG-AI2", src:"iGOT", hrs:1, tier:"live", by:"IIT Madras",
+    doid:"do_114371224734089216131",
+    title:"Fundamentals of Generative Artificial Intelligence", comps:["AI / ML"] },
+  { id:"IG-CY1", src:"iGOT", hrs:1.2, tier:"live", by:"NeGD",
+    doid:"do_114433385736724480188",
+    title:"CERT-In and Fundamentals of Cyber Hygiene", comps:["Cybersecurity"] },
+  { id:"IG-CY2", src:"iGOT", hrs:1.4, tier:"live", by:"IIT Madras",
+    doid:"do_1142432002191196161252",
+    title:"Cybersecurity (Basic Level)", comps:["Cybersecurity"] },
+  { id:"IG-DP1", src:"iGOT", hrs:2, tier:"live", by:"DataDotOrg",
+    doid:"do_1140994741049999361127",
+    title:"Responsible Data Management", comps:["Data Privacy","Open Data"] },
+  { id:"IG-DP2", src:"iGOT", hrs:2, tier:"live", by:"Karmayogi Bharat",
+    doid:"do_114408755027574784176",
+    title:"Digital Personal Data Protection Act 2023: An Overview", comps:["Data Privacy"] },
+  { id:"IG-DV1", src:"iGOT", hrs:3.8, tier:"live", by:"Microsoft",
+    doid:"do_11363681497528729611020",
+    title:"Microsoft Excel Advanced", comps:["Data Visualization"] },
+  { id:"IG-DM1", src:"iGOT", hrs:5, tier:"live", by:"ISB Bharti Institute",
+    doid:"do_113956369201438720137",
+    title:"Evidence Based Policy Making", comps:["Decision Making"] },
+  { id:"IG-DM2", src:"iGOT", hrs:2.4, tier:"live", by:"IIM Bangalore",
+    doid:"do_1143089865482649601691",
+    title:"Fundamentals of Public Policy", comps:["Decision Making"] },
+  { id:"IG-LD1", src:"iGOT", hrs:4, tier:"live", by:"Karmayogi Bharat",
+    doid:"do_1143569319354040321430",
+    title:"Leading with Clarity: Svadharma in Public Service", comps:["Leadership"] },
+  { id:"IG-LD2", src:"iGOT", hrs:46, tier:"live", by:"IIM Ahmedabad",
+    ext:"ext_114471828231954432176", title:"Leadership Skills", comps:["Leadership"] },
+  { id:"IG-CM1", src:"iGOT", hrs:1, tier:"live", by:"Karmayogi Bharat",
+    doid:"do_1141085925442682881296",
+    title:"Basics of Communication", comps:["Communication"] },
+  { id:"IG-CM2", src:"iGOT", hrs:8.6, tier:"live", by:"ESSEC Business School",
+    ext:"ext_114471842702008320196", title:"Negotiation Fundamentals", comps:["Communication"] },
+  { id:"IG-ET1", src:"iGOT", hrs:1, tier:"live", by:"ISTM",
+    doid:"do_113574903071662080178",
+    title:"Do\u2019s and Don\u2019ts for Government Employees", comps:["Ethics"] },
+  { id:"IG-ET2", src:"iGOT", hrs:1.2, tier:"live", by:"Wadhwani Foundation",
+    doid:"do_11440583652548608011174",
+    title:"AI Ethics in Good Governance", comps:["Ethics"] },
+  { id:"IG-PM1", src:"iGOT", hrs:3, tier:"live", by:"Karmayogi Bharat",
+    doid:"do_1143174291487703041758",
+    title:"Time Management Skills", comps:["Project Management"] },
+  { id:"IG-CH1", src:"iGOT", hrs:5, tier:"live", by:"Karmayogi Bharat",
+    doid:"do_113981544641339392163",
+    title:"Design Thinking for Excellence in Public Services", comps:["Change Management"] },
+  { id:"IG-SD1", src:"iGOT", hrs:4, tier:"live", by:"Karmayogi Bharat",
+    doid:"do_1143195977640345601231",
+    title:"Driving Sustainability through Policy and Governance", comps:["SDG Indicators"] },
+  { id:"IG-DQ1", src:"iGOT", hrs:21, tier:"live", by:"Johns Hopkins University",
+    ext:"ext_114471819367686144139",
+    title:"Analysis and Interpretation of Large-Scale Programs", comps:["Data Quality Frameworks"] },
+  { id:"IG-DPI", src:"iGOT", hrs:0.9, tier:"live", by:"Observer Research Foundation",
+    doid:"do_114367967480078336157",
+    title:"Deep Tech and India", comps:["Digital Public Infrastructure"] },
+
+  /* ---------- TIER 2: real NSSTA programmes named in MoSPI documents ---------- */
+  { id:"NS-HCE", src:"NSSTA", hrs:2.1, tier:"named", by:"NSSTA e-learning",
+    title:"Handling Unit Level Data of Household Consumption Expenditure Survey",
+    comps:["Survey Design"] },
+  { id:"NS-SVM", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA · Proficiency in Official Statistics",
+    title:"Survey Methodology (Module 1.3)", comps:["Sampling","Labour Statistics"] },
+  { id:"NS-ANA", src:"NSSTA", hrs:35, tier:"named", by:"NSSTA with IMF-SARTTAC",
+    title:"Annual National Accounts", comps:["National Accounts"] },
+  { id:"NS-EFS", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA · Proficiency in Official Statistics",
+    title:"Economics and Financial Statistics (Module 1.2)", comps:["Price Statistics"] },
+  { id:"NS-AGR", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA with NSO (FOD)",
+    title:"Refresher Programme on Agricultural Statistics", comps:["Agricultural Statistics"] },
+  { id:"NS-ASI", src:"NSSTA", hrs:0.4, tier:"named", by:"NSSTA e-learning",
+    title:"Handling Unit Level Data of Annual Survey of Industries",
+    comps:["Industrial Statistics"] },
+  { id:"NS-OFS", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA · Proficiency in Official Statistics",
+    title:"Official Statistics (Module 1.1)", comps:["Metadata Standards"] },
+  { id:"NS-BAS", src:"NSSTA", hrs:2.1, tier:"named", by:"NSSTA e-learning",
+    title:"Overview of Basic Statistics", comps:["Data Quality Frameworks"] },
+  { id:"NS-PKG", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA · IT and Data Analytics",
+    title:"Data Analysis through Statistical Packages (Module 2.2)",
+    comps:["Python","SAS"] },
+  { id:"NS-ULD", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA · IT and Data Analytics",
+    title:"Working with Unit Level Data using SPSS and R (Module 2.3)",
+    comps:["R","SPSS","Stata"] },
+  { id:"NS-ADV", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA · IT and Data Analytics",
+    title:"Advance IT (Module 2.1)", comps:["SQL","GIS","Cloud Computing","APIs"] },
+  { id:"NS-DMA", src:"NSSTA", hrs:30, tier:"named", by:"NSSTA · IT and Data Analytics",
+    title:"Data Mining and Applications (Module 2.4)", comps:["AI / ML"] },
+  { id:"NS-SEE", src:"NSSTA", hrs:8, tier:"named", by:"NSSTA e-learning",
+    title:"Socio-Economic and Enterprise Survey Module", comps:["Survey Design"] },
+
+  /* ---------- TIER 3: no confirmed course ID yet ---------- */
+  { id:"IG-DSC", src:"iGOT", hrs:3, tier:"ind", by:"iGOT Karmayogi",
+    title:"Digital Signatures and e-Office Workflows", comps:["Digital Signatures"] },
+  { id:"IG-CLD", src:"iGOT", hrs:6, tier:"ind", by:"iGOT Karmayogi",
+    title:"Cloud Adoption in Government (MeghRaj)", comps:["Government Cloud"] }
+];
+
+/* ==========================================================================
+   SHARED STATE
+   The whole app runs from these five values. `questions` is whatever the
+   assessment is currently using — AI-generated, seed, or a mix of both.
+   ========================================================================== */
+const DOMAINS = ["Statistical","Technical","Digital Governance","Behavioural & Managerial"];
+const LETTERS = ["A","B","C","D"];
+
+let questions = [];      // the question set being assessed right now
+let idx        = 0;      // which question is on screen (0-based)
+let picks      = [];     // the option index the user chose, one per question
+let picked     = null;   // the current selection, before "Next" is pressed
+
+const $ = id => document.getElementById(id);   // shorthand used everywhere below
+
+/* ==========================================================================
+   5. READING — pull the text out of an uploaded document
+   ========================================================================== */
+async function readFile(file){
+  if(!file) return "";
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  if(isPdf){
+    if(typeof pdfjsLib === "undefined")
+      throw new Error("The PDF reader did not load. Check your internet connection.");
+    // Required by pdf.js — without it, reading silently produces nothing.
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+    let out = "";
+    const pages = Math.min(pdf.numPages, 20);
+    for(let i=1; i<=pages; i++){
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      out += content.items.map(t=>t.str).join(" ") + "\n";
+    }
+    if(!out.trim())
+      throw new Error("This PDF has no text layer — it is a scanned image. Try a PDF you can select text in.");
+    return out;
+  }
+  return await file.text();
+}
+
+/* ==========================================================================
+   4. COMPETENCY FRAMEWORK — the 33 competencies from the problem statement
+   ========================================================================== */
+const COMPETENCIES = [
+  ["Survey Design","Statistical","STAT-01"], ["Sampling","Statistical","STAT-02"],
+  ["National Accounts","Statistical","STAT-03"], ["Price Statistics","Statistical","STAT-04"],
+  ["Labour Statistics","Statistical","STAT-05"], ["Agricultural Statistics","Statistical","STAT-06"],
+  ["Industrial Statistics","Statistical","STAT-07"], ["SDG Indicators","Statistical","STAT-08"],
+  ["Metadata Standards","Statistical","STAT-09"], ["Data Quality Frameworks","Statistical","STAT-10"],
+  ["Python","Technical","TECH-01"], ["R","Technical","TECH-02"], ["SQL","Technical","TECH-03"],
+  ["Stata","Technical","TECH-04"], ["SPSS","Technical","TECH-05"], ["SAS","Technical","TECH-06"],
+  ["GIS","Technical","TECH-07"], ["Data Visualization","Technical","TECH-08"],
+  ["AI / ML","Technical","TECH-09"], ["Cloud Computing","Technical","TECH-10"],
+  ["APIs","Technical","TECH-11"], ["Open Data","Technical","TECH-12"],
+  ["Cybersecurity","Digital Governance","DGOV-01"], ["Data Privacy","Digital Governance","DGOV-02"],
+  ["Digital Signatures","Digital Governance","DGOV-03"], ["Government Cloud","Digital Governance","DGOV-04"],
+  ["Digital Public Infrastructure","Digital Governance","DGOV-05"],
+  ["Leadership","Behavioural & Managerial","BEHV-01"], ["Communication","Behavioural & Managerial","BEHV-02"],
+  ["Project Management","Behavioural & Managerial","BEHV-03"], ["Ethics","Behavioural & Managerial","BEHV-04"],
+  ["Decision Making","Behavioural & Managerial","BEHV-05"], ["Change Management","Behavioural & Managerial","BEHV-06"]
+];
+
+/* The prompt sent to Gemini is built inside netlify/edge-functions/generate.js. */
+
+/* ==========================================================================
+   6. VALIDATION
+   Nothing the AI returns is trusted. A question must survive two checks before
+   a learner can ever see it: its competency tag must resolve to a real entry in
+   the framework, and its shape must be a usable multiple-choice question.
+   ========================================================================== */
+
+/* Look-ups built once from the framework above. */
+const BY_ID   = Object.fromEntries(COMPETENCIES.map(c => [c[2], { comp:c[0], domain:c[1] }]));
+const squash  = s => String(s||"").toLowerCase().replace(/[^a-z]/g,"");
+const BY_NAME = Object.fromEntries(COMPETENCIES.map(c => [squash(c[0]), { comp:c[0], domain:c[1] }]));
+
+/* The AI may spell a competency slightly differently ("AI/ML" vs "AI / ML").
+   Snap it back to the exact framework name, or the course match will silently
+   fail and a real gap would show no course. Trust the ID first, then the name. */
+function canonical(q){
+  const m = String(q.outcome||"").match(/^([A-Z]{4}-\d{2})/);
+  const hit = (m && BY_ID[m[1]]) || BY_NAME[squash(q.comp)];
+  return hit ? { ...q, comp:hit.comp, domain:hit.domain } : null;
+}
+
+/* Models sometimes get cut off mid-reply. Rather than losing everything to a
+   parse error, pull out every complete {...} object we can find. */
+function parseQuestions(raw){
+  const clean = raw.replace(/^```(?:json)?/i,"").replace(/```$/,"").trim();
+  try{ const j = JSON.parse(clean); if(Array.isArray(j)) return j; }catch(_){}
+
+  const out = [];
+  let depth = 0, start = -1, inStr = false, esc = false;
+  for(let i = 0; i < clean.length; i++){
+    const c = clean[i];
+    if(inStr){
+      if(esc) esc = false;
+      else if(c === "\\") esc = true;
+      else if(c === '"') inStr = false;
+      continue;
+    }
+    if(c === '"'){ inStr = true; continue; }
+    if(c === "{"){ if(depth === 0) start = i; depth++; }
+    else if(c === "}"){
+      depth--;
+      if(depth === 0 && start >= 0){
+        try{ out.push(JSON.parse(clean.slice(start, i + 1))); }catch(_){}
+        start = -1;
+      }
+    }
+  }
+  return out;
+}
+
+function validate(qs){
+  return qs
+    .map(q => (q && typeof q === "object") ? canonical(q) : null)
+    .filter(q =>
+      q && typeof q.q === "string" && q.q.length > 15 &&
+      Array.isArray(q.options) && q.options.length === 4 &&
+      Number.isInteger(q.answer) && q.answer >= 0 && q.answer < 4 &&
+      new Set(q.options).size === 4
+    )
+    .map(q => ({ ...q, why: q.why || "Refer to the source material." }));
+}
+
+/* ==========================================================================
+   7. GENERATION
+   Send the document text to the server function, and survive every failure:
+     · no text read              -> seed bank, with the reason shown on screen
+     · generator unreachable     -> seed bank, reason shown
+     · model retired or busy     -> the server function tries the next model
+     · reply cut off mid-JSON    -> salvage the complete questions from it
+     · too few usable questions  -> keep them and top up from the seed bank
+   ========================================================================== */
+async function generateQuestions(text){
+  if(!text.trim()) return { qs:BANK, live:false, note:"sample question set",
+                        err:"No text was read from the document, so there was nothing to generate from." };
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 45000);
+    let r;
+    try{
+      r = await fetch(AI_ENDPOINT, {
+        method:"POST",
+        signal: ctrl.signal,
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ text: text.slice(0, 9000) })
+      });
+    }catch(e){
+      throw new Error(e.name === "AbortError"
+        ? "the generator took too long to answer."
+        : "could not reach the question generator. Check your internet connection.");
+    }finally{ clearTimeout(timer); }
+
+    let data = {};
+    try{ data = await r.json(); }catch(_){}
+    if(!r.ok) throw new Error(data.error || ("generator returned " + r.status));
+
+    const raw = data.text || "";
+    const used = data.model || "Gemini";
+    if(!raw.trim()) throw new Error("the model returned an empty reply");
+
+    const good = validate(parseQuestions(raw));
+    if(!good.length){
+      const cut = data.finishReason === "MAX_TOKENS" ? " The reply was cut off. Try a shorter document." : "";
+      throw new Error(`no usable questions came back.${cut}`);
+    }
+
+    // Partial success is still success: keep what came from the document and
+    // top up from the sample set so the assessment is never uselessly short.
+    if(good.length < 6){
+      const topUp = BANK.slice(0, 10 - good.length);
+      return { qs: good.concat(topUp), live:true,
+               note:`${good.length} written by ${used} from your document, ${topUp.length} from the sample set` };
+    }
+    return { qs:good, live:true, note:`${good.length} questions written by ${used}` };
+  }catch(e){
+    console.warn("Generation failed, using sample set:", e);
+    return { qs:BANK, live:false, note:"sample question set", err:String(e.message || e) };
+  }
+}
+
+/* ==========================================================================
+   QuML EXPORT — the format Sunbird's assessment engine reads
+   ========================================================================== */
+/* Builds the QuML object. Field names follow the Sunbird question schema, so a
+   file exported here can be imported by the engine iGOT runs on. */
+function toQuML(qs){
+  return {
+    identifier:"statskill_qset_001",
+    objectType:"QuestionSet",
+    name:"StatSkill Competency Assessment",
+    primaryCategory:"Practice Question Set",
+    questions: qs.map((q,i)=>({
+      identifier:"stq_"+(i+1),
+      objectType:"Question",
+      primaryCategory:"Multiple Choice Question",
+      mimeType:"application/vnd.sunbird.question",
+      body:q.q,
+      competency:q.comp,
+      outcomeId:q.outcome,
+      responseDeclaration:{
+        response1:{ cardinality:"single", type:"integer", correctResponse:{ value:q.answer } }
+      },
+      interactions:{
+        response1:{ type:"choice", options:q.options.map((o,j)=>({ label:o, value:j })) }
+      },
+      solutions:[{ type:"text", value:q.why }]
+    }))
+  };
+}
+
+/* ==========================================================================
+   9. SCREEN FLOW — moving between the four stages
+   ========================================================================== */
+function stage(n){
+  [1,2,3,4].forEach(i => $("s"+i).classList.toggle("hide", i!==n));
+  [...$("rail").children].forEach((d,i)=>{
+    d.className = i+1 === n ? "on" : (i+1 < n ? "done" : "");
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* Ask the server function whether a key is configured, so a fallback to the
+   sample set is never a mystery. The key itself is never sent to the page. */
+(async function(){
+  const el = $("keystate");
+  el.className = "keystate off";
+  el.innerHTML = `<span class="dot"></span>Checking the question generator…`;
+  try{
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 6000);
+    const r = await fetch(AI_ENDPOINT, { signal: ctrl.signal });
+    const d = await r.json();
+    if(r.ok && d.key){
+      el.className = "keystate on";
+      el.innerHTML = `<span class="dot"></span>AI generation is live. Uploads are turned into questions by Gemini.`;
+      return;
+    }
+    el.innerHTML = `<span class="dot"></span>Generator reachable, but no API key is set on Netlify. Uploads will use the 10 sample questions.`;
+  }catch(_){
+    el.innerHTML = `<span class="dot"></span>Question generator not reachable. Uploads will use the 10 sample questions.`;
+  }
+})();
+
+$("drop").onclick = () => $("file").click();
+$("drop").onkeydown = e => {
+  if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("file").click(); }
+};
+
+$("file").onchange = e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  $("fname").textContent = f.name;
+  $("fsize").textContent = (f.size/1024).toFixed(0) + " KB";
+  $("filerow").classList.remove("hide");
+  $("go").disabled = false;
+  // Hide the sample-set button: with a file chosen, clicking it would silently
+  // throw the upload away and load the 10 built-in questions instead.
+  $("skip").classList.add("hide");
+};
+
+function clearFile(){
+  $("file").value = "";
+  $("filerow").classList.add("hide");
+  $("go").disabled = true;
+  $("skip").classList.remove("hide");
+  $("status").innerHTML = "";
+}
+$("clear").onclick = clearFile;
+
+$("go").onclick = () => run(true);
+$("skip").onclick = () => run(false);
+
+async function run(useFile){
+  const st = $("status");
+  $("go").disabled = true; $("skip").disabled = true;
+  $("go").textContent = "Working…";
+  let text = "";
+
+  let readError = "";
+  if(useFile){
+    try{
+      st.innerHTML = '<span class="spin"></span><b>Reading document…</b>';
+      text = await readFile($("file").files[0]);
+      st.innerHTML = `<span class="spin"></span><span><b>Read ${text.length.toLocaleString()} characters.</b> Writing questions…</span>`;
+    }catch(e){
+      readError = String(e.message || e);
+      text = "";
+    }
+  }
+
+  const result = await generateQuestions(text);
+  if(readError && !result.live) result.err = readError;
+  questions = result.qs;
+
+  // Shown on the NEXT screen, so it stays visible instead of being hidden with stage 1.
+  const prov = $("prov");
+  if(result.live){
+    prov.className = "prov";
+    prov.innerHTML = `<b>Written from your document.</b> ${result.note}, read from
+      ${$("fname").textContent || "the uploaded file"}.`;
+  } else {
+    prov.className = "prov fallback";
+    prov.innerHTML = `<b>Using the built-in sample set.</b> These 10 questions are not from your document.
+      ${result.err ? `<span class="why">Reason: ${result.err}</span>` : ""}`;
+    if(useFile && $("file").files[0]){
+      const again = document.createElement("button");
+      again.className = "linkbtn";
+      again.style.marginTop = "8px";
+      again.textContent = "Try generating again";
+      again.onclick = () => { stage(1); run(true); };
+      prov.appendChild(again);
+    }
+  }
+
+  st.innerHTML = "";
+  $("go").textContent = "Generate questions";
+  $("go").disabled = false; $("skip").disabled = false;
+
+  const list = $("genlist");
+  list.innerHTML = "";
+  questions.forEach((q,i)=>{
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="no">${String(i+1).padStart(2,"0")}</span>
+      <span class="txt">${q.q.slice(0,88)}<em>…</em></span>
+      <span class="tag">${q.comp}</span>`;
+    list.appendChild(li);
+  });
+  stage(2);
+}
+
+$("quml").onclick = () => {
+  const blob = new Blob([JSON.stringify(toQuML(questions),null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "statskill_questions_quml.json";
+  a.click();
+};
+
+$("start").onclick = () => { idx=0; picks=[]; stage(3); render(); };
+
+/* ==========================================================================
+   10. ASSESSMENT — draw one question, collect one answer
+   ========================================================================== */
+function render(){
+  const q = questions[idx];
+  picked = null;
+  $("prog").style.width = (idx/questions.length*100) + "%";
+  $("qnum").textContent = `Question ${idx+1} of ${questions.length}`;
+  $("qtag").textContent = q.comp;
+  $("qtext").textContent = q.q;
+  const box = $("opts");
+  box.innerHTML = "";
+  q.options.forEach((o,i)=>{
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = `<span class="letter">${LETTERS[i]}</span><span>${o}</span>`;
+    b.onclick = () => choose(i, box);
+    box.appendChild(b);
+  });
+  $("next").disabled = true;
+  $("next").textContent = idx === questions.length-1 ? "See my results" : "Next question";
+}
+
+function choose(i, box){
+  picked = i;
+  [...box.children].forEach((c,j)=>c.classList.toggle("pick", j===i));
+  $("next").disabled = false;
+}
+
+/* keyboard: 1–4 to choose, Enter to advance — keeps the live demo quick */
+document.addEventListener("keydown", e => {
+  if($("s3").classList.contains("hide")) return;
+  if(["1","2","3","4"].includes(e.key)) choose(+e.key-1, $("opts"));
+  if(e.key === "Enter" && picked !== null) $("next").click();
+});
+
+$("next").onclick = () => {
+  picks.push(picked);
+  if(idx < questions.length-1){ idx++; render(); }
+  else results();
+};
+
+/* ==========================================================================
+   11. RESULTS — score, find the gaps, recommend the courses that close them
+
+   Scores roll up in three steps: question -> competency -> domain. A wrong
+   answer marks its competency as a gap; courses covering that competency are
+   ranked by how many gaps each one closes.
+   ========================================================================== */
+function results(){
+  const correct = picks.filter((p,i)=>p===questions[i].answer).length;
+  const pct = Math.round(correct/questions.length*100);
+  $("pct").textContent = pct + "%";
+  $("verdict").innerHTML = `<b>${correct} of ${questions.length} correct.</b> Scores are rolled up from
+    individual questions to competencies, then to the four domains defined for the Official
+    Statistical System.`;
+
+  const dom = {};
+  DOMAINS.forEach(d => dom[d] = {right:0,total:0});
+  questions.forEach((q,i)=>{
+    if(!dom[q.domain]) return;
+    dom[q.domain].total++;
+    if(picks[i]===q.answer) dom[q.domain].right++;
+  });
+
+  const dbox = $("domains");
+  dbox.innerHTML = "";
+  DOMAINS.forEach(d=>{
+    const v = dom[d];
+    if(!v.total) return;
+    const p = Math.round(v.right/v.total*100);
+    const row = document.createElement("div");
+    row.className = "grow";
+    row.innerHTML = `
+      <span class="lbl">${d}<em>${v.right} of ${v.total} correct</em></span>
+      <span class="trk"><i style="width:${p}%;background:${p<60?'var(--brick)':'var(--pine)'}"></i><span class="thresh"></span></span>
+      <span class="val" style="color:${p<60?'var(--brick)':'var(--pine)'}">${p}%</span>`;
+    dbox.appendChild(row);
+  });
+
+  const weak = questions.filter((q,i)=>picks[i]!==q.answer);
+  const gbox = $("gaps");
+  gbox.innerHTML = "";
+  if(!weak.length){
+    gbox.innerHTML = '<p class="empty">No gaps identified. Every competency assessed was demonstrated.</p>';
+  } else {
+    weak.forEach(q=>{
+      const d = document.createElement("div");
+      d.className = "gapcard";
+      d.innerHTML = `<b>${q.comp}</b><span>${q.why}</span>`;
+      gbox.appendChild(d);
+    });
+  }
+
+  // Rank courses: the one closing the most gaps first, then the shortest.
+  const weakComps = [...new Set(weak.map(q=>q.comp))];
+  const rec = COURSES
+    .map(c => ({ ...c, closes: c.comps.filter(x => weakComps.includes(x)) }))
+    .filter(c => c.closes.length > 0)
+    .sort((a,b) => b.closes.length - a.closes.length || a.hrs - b.hrs)
+    .slice(0, 6);
+
+  // Any gap with no course mapped to it — should not happen, but never hide it.
+  const covered = new Set(rec.flatMap(c => c.closes));
+  const uncovered = weakComps.filter(x => !covered.has(x));
+
+  const cbox = $("courses");
+  cbox.innerHTML = "";
+  if(!rec.length){
+    cbox.innerHTML = '<p class="empty">No remedial training needed. Consider advanced modules in your strongest domain.</p>';
+  } else {
+    rec.forEach(c=>{
+      const a = document.createElement("a");
+      a.className = "course";
+      a.href = courseLink(c);
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.innerHTML = `<div><b>${c.title}</b>
+        <div class="meta">${c.id} · ${c.hrs} hours · closes ${c.closes.length} gap${c.closes.length>1?"s":""}: ${c.closes.join(", ")}</div></div>
+        <div class="right"><span class="src">${c.src}</span><span class="open">Open ↗</span></div>`;
+      cbox.appendChild(a);
+    });
+    if(uncovered.length){
+      const p = document.createElement("p");
+      p.className = "empty";
+      p.style.marginTop = "14px";
+      p.textContent = "No course mapped yet for: " + uncovered.join(", ") + ".";
+      cbox.appendChild(p);
+    }
+  }
+  stage(4);
+}
+
+$("again").onclick = () => { clearFile(); stage(1); };
+</script>
+</body>
+</html>
