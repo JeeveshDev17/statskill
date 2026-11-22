@@ -1,4 +1,5 @@
 # StatSkill — Netlify configuration
+# Author: Jeevesh Dev · Team DevOOPS · SIH26101
 # The site is plain HTML, so there is no build command.
 # The edge function in netlify/edge-functions/generate.js is picked up automatically
 # and served at /api/generate (see `export const config` inside that file).

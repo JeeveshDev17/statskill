@@ -5,13 +5,19 @@
    WHY THIS FILE EXISTS
    The Gemini API key must never sit inside index.html, because anyone can read
    a web page's source. This function runs on Netlify's servers. It reads the
-   key from a Netlify environment variable called GEMINI_API_KEY, calls Gemini,
-   and sends back only the questions. The key never reaches the browser.
+   key from a Netlify environment variable called MCQ_Generator (or
+   STATSKILL_GEMINI_KEY), calls Gemini, and sends back only the questions.
+   The key never reaches the browser.
+
+   Do not name the variable GEMINI_API_KEY: Netlify's AI Gateway fills that
+   name with its own token, which Google rejects as "API key not valid".
 
    ROUTES
      GET  /api/generate   health check: {"ok":true,"key":true|false}
-     POST /api/generate   body {"text":"<training material>"}
+     POST /api/generate   body {"text":"<training material>", "model":"<name>"}
+                          one try with that model (the page runs the retries)
                           returns {"text":"<model reply>","model":"<name>"}
+                          Without "model", tries every model in turn.
 
    The function only builds its own MCQ prompt, so it can't be used as a
    general-purpose free Gemini proxy by other people.
@@ -162,10 +168,10 @@ export default async function handler(request) {
 
   /* Health check. Shows only the first 4 characters and the length, never the key. */
   if (request.method === "GET") return json({
-    ok: true, key: Boolean(key), starts: key.slice(0, 4), length: key.length, models: MODELS
+    app: "StatSkill by Jeevesh Dev", ok: true, key: Boolean(key), starts: key.slice(0, 4), length: key.length, models: MODELS
   }, 200, origin);
   if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
-  if (!key) return json({ error: "STATSKILL_GEMINI_KEY is not set on Netlify. Add it under Project configuration > Environment variables, then redeploy." }, 500, origin);
+  if (!key) return json({ error: "No Gemini key on Netlify. Add a variable named MCQ_Generator under Project configuration > Environment variables, then redeploy." }, 500, origin);
 
   let text = "", model = "";
   try { const b = await request.json(); text = String(b.text || ""); model = String(b.model || ""); } catch (_) {}
@@ -191,7 +197,7 @@ export default async function handler(request) {
       const data = await r.json();
       const cand = data?.candidates?.[0];
       const reply = cand?.content?.parts?.map(p => p.text || "").join("") || "";
-      return json({ text: reply, model, finishReason: cand?.finishReason || "" }, 200, origin);
+      return json({ text: reply, model, finishReason: cand?.finishReason || "", by: "StatSkill by Jeevesh Dev" }, 200, origin);
     }
     let detail = "";
     try { detail = (await r.json())?.error?.message || ""; } catch (_) {}
@@ -224,7 +230,7 @@ export default async function handler(request) {
         const data = await r.json();
         const cand = data?.candidates?.[0];
         const reply = cand?.content?.parts?.map(p => p.text || "").join("") || "";
-        return json({ text: reply, model, finishReason: cand?.finishReason || "" }, 200, origin);
+        return json({ text: reply, model, finishReason: cand?.finishReason || "", by: "StatSkill by Jeevesh Dev" }, 200, origin);
       }
 
       let detail = "";

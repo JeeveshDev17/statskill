@@ -1,3 +1,4 @@
+# StatSkill by Jeevesh Dev
 # Never commit a copy of the page with an API key pasted into it
 *.keyed.html
 statskill.html
@@ -9,3 +10,6 @@ statskill.html
 node_modules/
 .DS_Store
 Thumbs.db
+
+# Test output
+coverage/

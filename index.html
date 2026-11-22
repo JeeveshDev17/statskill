@@ -5,7 +5,7 @@
   Ministry of Statistics and Programme Implementation
 
   Author : Jeevesh Dev
-  Team   : DevOOPS · OCT, CSE-B, First Year
+  Team   : DevOOPS · OCT, CSE'30, First Year
   Licence: MIT (see LICENSE)
 -->
 <html lang="en">
@@ -14,7 +14,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Jeevesh Dev">
 <meta name="description" content="StatSkill: turns training material into a competency assessment and recommends iGOT Karmayogi and NSSTA courses for each gap. Built by Jeevesh Dev, Team DevOOPS, for SIH26101.">
-<title>StatSkill — Competency Assessment for the Official Statistical System</title>
+<title>StatSkill by Jeevesh Dev — Competency Assessment for the Official Statistical System</title>
+<meta name="creator" content="Jeevesh Dev">
+<meta name="copyright" content="© 2026 Jeevesh Dev">
+<meta property="og:title" content="StatSkill by Jeevesh Dev">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
@@ -275,6 +278,7 @@ footer .sig b{color:var(--ink); font-weight:600}
     <h1>Stat<em>Skill</em></h1>
     <p>Turns training material into a competency assessment, then shows an officer exactly
     which skills are weak and which courses close the gap.</p>
+    <p class="byline" style="margin-top:.6rem;font-size:.9rem;opacity:.85">Made by <b>Jeevesh Dev</b> · Team DevOOPS</p>
   </div>
 </div>
 
@@ -390,7 +394,7 @@ footer .sig b{color:var(--ink); font-weight:600}
   <p class="note">Prototype · Competency domains follow problem statement SIH26101. Course titles are
   placeholders pending the live iGOT Karmayogi and NSSTA catalogues. Generated questions are reviewed
   by a subject expert before release to officers.</p>
-  <p class="sig">Built by <b>Jeevesh Dev</b> · Team <b>DevOOPS</b> · OCT, CSE-B, First Year
+  <p class="sig">Built by <b>Jeevesh Dev</b> · Team <b>DevOOPS</b> · OCT, CSE'30, First Year
   · Smart India Hackathon 2026 · SIH26101</p>
 </footer>
 
@@ -401,7 +405,7 @@ footer .sig b{color:var(--ink); font-weight:600}
    Smart India Hackathon 2026  ·  Problem Statement SIH26101
    Ministry of Statistics and Programme Implementation
 
-   Team     DevOOPS  ·  OCT, CSE-B, First Year
+   Team     DevOOPS  ·  OCT, CSE'30, First Year
    Author   Jeevesh Dev
    Files    index.html (this page) + netlify/edge-functions/generate.js
             The Gemini key lives on Netlify as GEMINI_API_KEY, never in this file.
@@ -907,6 +911,9 @@ async function generateQuestions(text, onProgress = () => {}){
 function toQuML(qs){
   return {
     identifier:"statskill_qset_001",
+    author:"Jeevesh Dev",
+    createdBy:"Jeevesh Dev",
+    creator:"StatSkill by Jeevesh Dev (Team DevOOPS)",
     objectType:"QuestionSet",
     name:"StatSkill Competency Assessment",
     primaryCategory:"Practice Question Set",
@@ -1055,7 +1062,7 @@ $("quml").onclick = () => {
   const blob = new Blob([JSON.stringify(toQuML(questions),null,2)],{type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "statskill_questions_quml.json";
+  a.download = "statskill_by_jeevesh_dev_quml.json";
   a.click();
 };
 
@@ -1157,11 +1164,17 @@ function results(){
 
   // Rank courses: the one closing the most gaps first, then the shortest.
   const weakComps = [...new Set(weak.map(q=>q.comp))];
-  const rec = COURSES
+  const ranked = COURSES
     .map(c => ({ ...c, closes: c.comps.filter(x => weakComps.includes(x)) }))
     .filter(c => c.closes.length > 0)
-    .sort((a,b) => b.closes.length - a.closes.length || a.hrs - b.hrs)
-    .slice(0, 6);
+    .sort((a,b) => b.closes.length - a.closes.length || a.hrs - b.hrs);
+  // Every gap gets its best course first, so no gap is pushed off the list;
+  // then the list is filled up to 6 with the next best courses.
+  const rec = [];
+  const take = c => { if(!rec.includes(c)) rec.push(c); };
+  weakComps.forEach(g => { const best = ranked.find(c => c.closes.includes(g)); if(best) take(best); });
+  ranked.forEach(c => { if(rec.length < 6) take(c); });
+  rec.sort((a,b) => b.closes.length - a.closes.length || a.hrs - b.hrs);
 
   // Any gap with no course mapped to it — should not happen, but never hide it.
   const covered = new Set(rec.flatMap(c => c.closes));
@@ -1195,6 +1208,7 @@ function results(){
 }
 
 $("again").onclick = () => { clearFile(); stage(1); };
+console.log("%cStatSkill by Jeevesh Dev · Team DevOOPS · SIH26101", "font-weight:bold;font-size:14px");
 </script>
 </body>
 </html>

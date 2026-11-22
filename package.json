@@ -1,0 +1,19 @@
+{
+  "name": "statskill",
+  "version": "1.0.0",
+  "description": "AI competency assessment for India's Official Statistical System (SIH26101, MoSPI)",
+  "author": "Jeevesh Dev",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JeeveshDev17/statskill.git"
+  },
+  "homepage": "https://benevolent-nasturtium-637b58.netlify.app",
+  "keywords": ["sih2026", "mospi", "assessment", "gemini", "netlify", "igot-karmayogi"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test tests/generate.test.mjs tests/check-repo.mjs"
+  }
+}

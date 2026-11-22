@@ -1,0 +1,481 @@
+{
+  "identifier": "statskill_qset_001",
+  "author": "Jeevesh Dev",
+  "createdBy": "Jeevesh Dev",
+  "creator": "StatSkill by Jeevesh Dev (Team DevOOPS)",
+  "objectType": "QuestionSet",
+  "name": "StatSkill Competency Assessment",
+  "primaryCategory": "Practice Question Set",
+  "questions": [
+    {
+      "identifier": "stq_1",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "A survey stratifies districts by urbanisation before sampling villages within each stratum. Compared with simple random sampling of the same size, what is the expected effect on the variance of a state-level estimate?",
+      "competency": "Sampling",
+      "outcomeId": "STAT-02-a",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "Variance falls, because within-stratum variation is smaller than overall variation",
+              "value": 0
+            },
+            {
+              "label": "Variance rises, because stratification adds a second stage of selection",
+              "value": 1
+            },
+            {
+              "label": "Variance is unchanged, since the total sample size is the same",
+              "value": 2
+            },
+            {
+              "label": "Variance becomes impossible to estimate without a design effect correction",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "Stratification groups similar units together. Because variation inside each stratum is smaller than variation across the whole population, the estimate is more precise for the same sample size."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_2",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "An item's price rises from ₹40 to ₹50 and it carries a weight of 6 per cent in the group. What is its contribution to the group index, taking the base as 100?",
+      "competency": "Price Statistics",
+      "outcomeId": "STAT-04-b",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "7.5 points",
+              "value": 0
+            },
+            {
+              "label": "1.5 points",
+              "value": 1
+            },
+            {
+              "label": "10.0 points",
+              "value": 2
+            },
+            {
+              "label": "6.0 points",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "The price relative is 50/40 × 100 = 125. Weighted contribution is 125 × 0.06 = 7.5 index points."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_3",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "A consumption survey asks households to recall spending on food over the past 30 days and on clothing over the past 365 days. What is the main reason for using different reference periods?",
+      "competency": "Survey Design",
+      "outcomeId": "STAT-01-b",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "Frequently purchased items are recalled accurately only over short periods",
+              "value": 0
+            },
+            {
+              "label": "Longer reference periods reduce the total number of households needed",
+              "value": 1
+            },
+            {
+              "label": "Clothing prices change more slowly than food prices",
+              "value": 2
+            },
+            {
+              "label": "Statistical software requires uniform annualised inputs",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "Recall accuracy falls as the period lengthens, but rare purchases need a long window to be captured at all. Reference periods are matched to purchase frequency."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_4",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "Of 8,000 sampled households, 6,800 responded. What is the non-response rate, and why does it matter beyond sample size?",
+      "competency": "Data Quality Frameworks",
+      "outcomeId": "STAT-10-b",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "15 per cent — non-respondents may differ systematically from respondents",
+              "value": 0
+            },
+            {
+              "label": "15 per cent — it only reduces precision, introducing no bias",
+              "value": 1
+            },
+            {
+              "label": "85 per cent — it measures the achieved sample",
+              "value": 2
+            },
+            {
+              "label": "12 per cent — it is calculated against the responding total",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "1,200 of 8,000 is 15 per cent. The real risk is bias: if those who did not respond differ from those who did, weighting the achieved sample up will not fix it."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_5",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "A survey dataset has one row per household with twelve monthly expenditure columns. Which pandas operation converts it to one row per household-month?",
+      "competency": "Python",
+      "outcomeId": "TECH-01-a",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "df.melt() to move columns into rows",
+              "value": 0
+            },
+            {
+              "label": "df.pivot() to spread rows into columns",
+              "value": 1
+            },
+            {
+              "label": "df.groupby() to aggregate by household",
+              "value": 2
+            },
+            {
+              "label": "df.merge() to join on the household identifier",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "melt reshapes wide to long, turning the twelve month columns into a month column and a value column."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_6",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "You need each district's total expenditure alongside every individual household row, without collapsing the rows. What handles this in one query?",
+      "competency": "SQL",
+      "outcomeId": "TECH-03-a",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "A window function such as SUM(...) OVER (PARTITION BY district)",
+              "value": 0
+            },
+            {
+              "label": "GROUP BY district with SUM(expenditure)",
+              "value": 1
+            },
+            {
+              "label": "A LEFT JOIN of the table onto itself",
+              "value": 2
+            },
+            {
+              "label": "SELECT DISTINCT district with an ORDER BY",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "A window function computes an aggregate across a partition while keeping every original row. GROUP BY would collapse them to one row per district."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_7",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "A model flagging suspect survey records has precision 0.95 and recall 0.40. What does this mean in practice?",
+      "competency": "AI / ML",
+      "outcomeId": "TECH-09-b",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "Flags are usually correct, but most bad records go undetected",
+              "value": 0
+            },
+            {
+              "label": "Most bad records are caught, but many flags are false alarms",
+              "value": 1
+            },
+            {
+              "label": "The model performs well on both measures",
+              "value": 2
+            },
+            {
+              "label": "The model is overfitted to the training data",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "High precision means the flags it raises are trustworthy. Low recall means it is missing 60 per cent of the records it should have caught."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_8",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "Before releasing household microdata, which action best reduces the risk of identifying an individual respondent?",
+      "competency": "Data Privacy",
+      "outcomeId": "DGOV-02-b",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "Suppress or collapse cells where very few households share a rare combination of attributes",
+              "value": 0
+            },
+            {
+              "label": "Remove the name field and publish everything else unchanged",
+              "value": 1
+            },
+            {
+              "label": "Publish only to registered researchers with no changes to the data",
+              "value": 2
+            },
+            {
+              "label": "Round every monetary value to the nearest rupee",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "Names are not the risk. A rare combination of age, occupation, location and household size can identify someone on its own, so small cells are suppressed or collapsed."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_9",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "A senior official asks that an unfavourable release be delayed until after an unrelated announcement. Which principle of official statistics speaks most directly to this?",
+      "competency": "Ethics",
+      "outcomeId": "BEHV-04-a",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "Statistics must be released on a pre-announced, impartial schedule",
+              "value": 0
+            },
+            {
+              "label": "Statistical agencies should consult stakeholders before publishing",
+              "value": 1
+            },
+            {
+              "label": "Confidentiality of individual respondents must be protected",
+              "value": 2
+            },
+            {
+              "label": "Agencies should use the most cost-effective collection methods",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "Impartiality and a pre-announced release calendar protect statistics from being timed for political convenience. That is the safeguard being tested here."
+        }
+      ]
+    },
+    {
+      "identifier": "stq_10",
+      "objectType": "Question",
+      "primaryCategory": "Multiple Choice Question",
+      "mimeType": "application/vnd.sunbird.question",
+      "body": "An estimate is 6.2 per cent with a 95 per cent confidence interval of 5.8 to 6.6. How should this be conveyed in a press note?",
+      "competency": "Communication",
+      "outcomeId": "BEHV-02-a",
+      "responseDeclaration": {
+        "response1": {
+          "cardinality": "single",
+          "type": "integer",
+          "correctResponse": {
+            "value": 0
+          }
+        }
+      },
+      "interactions": {
+        "response1": {
+          "type": "choice",
+          "options": [
+            {
+              "label": "Report 6.2 per cent and state the range within which the true value very likely falls",
+              "value": 0
+            },
+            {
+              "label": "Report 6.2 per cent alone, since the interval will confuse readers",
+              "value": 1
+            },
+            {
+              "label": "Report the range only, since a single figure implies false precision",
+              "value": 2
+            },
+            {
+              "label": "Report 6.2 per cent and note the result is not statistically significant",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "solutions": [
+        {
+          "type": "text",
+          "value": "Readers need the headline figure to be usable and the interval to understand its precision. Dropping either misleads, and significance is a different claim entirely."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# StatSkill by Jeevesh Dev
+# Store every text file with LF line endings, whatever computer it came from.
+# This stops the "LF will be replaced by CRLF" warning on Windows.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.pdf binary
+*.zip binary
