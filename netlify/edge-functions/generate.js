@@ -20,12 +20,14 @@
 export const config = { path: "/api/generate" };
 
 /* Google retires model names from time to time. These are tried in order. */
-const MODELS = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-flash-latest"];
+const MODELS = ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-flash-latest"];
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models/";
 
 /* Edge functions must start replying within 40 s. Stay safely under that. */
 const TIME_BUDGET_MS = 34000;
-const MAX_TEXT_CHARS = 9000;
+/* One try with a named model may use nearly all of the 40 s. */
+const SINGLE_TRY_MS = 37000;
+const MAX_TEXT_CHARS = 6000;
 
 /* Which websites may call this function from a browser.
    Default: any Netlify site, any GitHub Pages site, local testing, and a file
@@ -117,25 +119,35 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
    Try the address form first; if Google says the key is invalid, try the
    header form once before giving up. */
 async function callGemini(model, key, text, signal) {
-  const body = JSON.stringify({
+  /* Thinking makes Gemini slow; 10 MCQs don't need it. 2.5 models take a
+     token budget, newer ones take a level. If a model rejects the setting,
+     we resend without it. */
+  const thinking = /2\.5/.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: "low" };
+  const makeBody = withThinking => JSON.stringify({
     contents: [{ parts: [{ text: buildPrompt(text) }] }],
-    generationConfig: { temperature: 0.4, maxOutputTokens: 16384, responseMimeType: "application/json" }
+    generationConfig: Object.assign(
+      { temperature: 0.4, maxOutputTokens: 6000, responseMimeType: "application/json" },
+      withThinking ? { thinkingConfig: thinking } : {})
   });
   const url = `${API_BASE}${model}:generateContent`;
-
-  const first = await fetch(`${url}?key=${encodeURIComponent(key)}`, {
-    method: "POST", signal, headers: { "Content-Type": "application/json" }, body
+  const send = (body, useHeader) => fetch(useHeader ? url : `${url}?key=${encodeURIComponent(key)}`, {
+    method: "POST", signal, body,
+    headers: useHeader ? { "Content-Type": "application/json", "x-goog-api-key": key }
+                       : { "Content-Type": "application/json" }
   });
-  if (first.status !== 400 && first.status !== 401 && first.status !== 403) return first;
+  const errMsg = async r => { try { return (await r.clone().json())?.error?.message || ""; } catch (_) { return ""; } };
 
-  const copy = first.clone();
-  let msg = "";
-  try { msg = (await copy.json())?.error?.message || ""; } catch (_) {}
-  if (!/api key|credential|unauthenticated|permission/i.test(msg)) return first;
-
-  return fetch(url, {
-    method: "POST", signal, headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body
-  });
+  let body = makeBody(true);
+  let r = await send(body, false);
+  if (r.status === 400 && /thinking/i.test(await errMsg(r))) {
+    body = makeBody(false);
+    r = await send(body, false);
+  }
+  if ((r.status === 400 || r.status === 401 || r.status === 403) &&
+      /api key|credential|unauthenticated|permission/i.test(await errMsg(r))) {
+    r = await send(body, true);
+  }
+  return r;
 }
 
 export default async function handler(request) {
@@ -150,14 +162,41 @@ export default async function handler(request) {
 
   /* Health check. Shows only the first 4 characters and the length, never the key. */
   if (request.method === "GET") return json({
-    ok: true, key: Boolean(key), starts: key.slice(0, 4), length: key.length
+    ok: true, key: Boolean(key), starts: key.slice(0, 4), length: key.length, models: MODELS
   }, 200, origin);
   if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
   if (!key) return json({ error: "STATSKILL_GEMINI_KEY is not set on Netlify. Add it under Project configuration > Environment variables, then redeploy." }, 500, origin);
 
-  let text = "";
-  try { text = String((await request.json()).text || ""); } catch (_) {}
+  let text = "", model = "";
+  try { const b = await request.json(); text = String(b.text || ""); model = String(b.model || ""); } catch (_) {}
   if (!text.trim()) return json({ error: "No document text was sent." }, 400, origin);
+
+  /* ONE TRY WITH A NAMED MODEL
+     The web page runs the 3 models x 3 tries loop itself and calls this once
+     per try, so every try gets Netlify's full time limit to itself. */
+  if (model) {
+    if (!MODELS.includes(model)) return json({ error: `Unknown model ${model}.`, model }, 400, origin);
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), SINGLE_TRY_MS);
+    let r;
+    try {
+      r = await callGemini(model, key, text, ctrl.signal);
+    } catch (e) {
+      clearTimeout(timer);
+      return json({ error: e.name === "AbortError" ? "took too long to answer" : "could not reach Gemini", model },
+                  504, origin);
+    }
+    clearTimeout(timer);
+    if (r.ok) {
+      const data = await r.json();
+      const cand = data?.candidates?.[0];
+      const reply = cand?.content?.parts?.map(p => p.text || "").join("") || "";
+      return json({ text: reply, model, finishReason: cand?.finishReason || "" }, 200, origin);
+    }
+    let detail = "";
+    try { detail = (await r.json())?.error?.message || ""; } catch (_) {}
+    return json({ error: `${r.status}${detail ? " — " + detail : ""}`, model }, r.status, origin);
+  }
 
   const started = Date.now();
   const timeLeft = () => TIME_BUDGET_MS - (Date.now() - started);
