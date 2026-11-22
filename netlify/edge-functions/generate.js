@@ -145,9 +145,13 @@ export default async function handler(request) {
   if (request.method === "OPTIONS") return json({}, origin ? 204 : 403, origin);
   if (!origin && !sameSite) return json({ error: "This website is not allowed to call the generator." }, 403, "");
 
-  const key = readEnv("GEMINI_API_KEY");
+  /* Strip spaces, line breaks and quotes that sneak in when a key is pasted */
+  const key = readEnv("GEMINI_API_KEY").trim().replace(/^["']+|["']+$/g, "").replace(/\s+/g, "");
 
-  if (request.method === "GET") return json({ ok: true, key: Boolean(key) }, 200, origin);
+  /* Health check. Shows only the first 4 characters and the length, never the key. */
+  if (request.method === "GET") return json({
+    ok: true, key: Boolean(key), starts: key.slice(0, 4), length: key.length
+  }, 200, origin);
   if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
   if (!key) return json({ error: "GEMINI_API_KEY is not set on Netlify. Add it under Site configuration > Environment variables, then redeploy." }, 500, origin);
 
