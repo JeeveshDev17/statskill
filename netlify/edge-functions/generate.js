@@ -20,13 +20,13 @@
 export const config = { path: "/api/generate" };
 
 /* Google retires model names from time to time. These are tried in order. */
-const MODELS = ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-flash-latest"];
+const MODELS = ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-flash-lite-latest"];
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models/";
 
 /* Edge functions must start replying within 40 s. Stay safely under that. */
 const TIME_BUDGET_MS = 34000;
 /* One try with a named model may use nearly all of the 40 s. */
-const SINGLE_TRY_MS = 37000;
+const SINGLE_TRY_MS = 32000;
 const MAX_TEXT_CHARS = 6000;
 
 /* Which websites may call this function from a browser.
