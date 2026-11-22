@@ -146,14 +146,14 @@ export default async function handler(request) {
   if (!origin && !sameSite) return json({ error: "This website is not allowed to call the generator." }, 403, "");
 
   /* Strip spaces, line breaks and quotes that sneak in when a key is pasted */
-  const key = readEnv("GEMINI_API_KEY").trim().replace(/^["']+|["']+$/g, "").replace(/\s+/g, "");
+  const key = (readEnv("STATSKILL_GEMINI_KEY") || readEnv("MCQ_Generator")).trim().replace(/^["']+|["']+$/g, "").replace(/\s+/g, "");
 
   /* Health check. Shows only the first 4 characters and the length, never the key. */
   if (request.method === "GET") return json({
     ok: true, key: Boolean(key), starts: key.slice(0, 4), length: key.length
   }, 200, origin);
   if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
-  if (!key) return json({ error: "GEMINI_API_KEY is not set on Netlify. Add it under Site configuration > Environment variables, then redeploy." }, 500, origin);
+  if (!key) return json({ error: "STATSKILL_GEMINI_KEY is not set on Netlify. Add it under Project configuration > Environment variables, then redeploy." }, 500, origin);
 
   let text = "";
   try { text = String((await request.json()).text || ""); } catch (_) {}
