@@ -110,6 +110,34 @@ function json(body, status, origin) {
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
+/* Google issues two kinds of key. Standard keys (starting "AIza") work in a
+   request header. Keys bound to a service account (starting "AQ.") are only
+   accepted as ?key= in the address. This runs server-side, so the key is still
+   never seen by the browser either way.
+   Try the address form first; if Google says the key is invalid, try the
+   header form once before giving up. */
+async function callGemini(model, key, text, signal) {
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: buildPrompt(text) }] }],
+    generationConfig: { temperature: 0.4, maxOutputTokens: 16384, responseMimeType: "application/json" }
+  });
+  const url = `${API_BASE}${model}:generateContent`;
+
+  const first = await fetch(`${url}?key=${encodeURIComponent(key)}`, {
+    method: "POST", signal, headers: { "Content-Type": "application/json" }, body
+  });
+  if (first.status !== 400 && first.status !== 401 && first.status !== 403) return first;
+
+  const copy = first.clone();
+  let msg = "";
+  try { msg = (await copy.json())?.error?.message || ""; } catch (_) {}
+  if (!/api key|credential|unauthenticated|permission/i.test(msg)) return first;
+
+  return fetch(url, {
+    method: "POST", signal, headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body
+  });
+}
+
 export default async function handler(request) {
   const origin = allowedOrigin(request.headers.get("origin") || "");
   const sameSite = !request.headers.get("origin");
@@ -140,15 +168,7 @@ export default async function handler(request) {
       const timer = setTimeout(() => ctrl.abort(), timeLeft() - 1000);
       let r;
       try {
-        r = await fetch(`${API_BASE}${model}:generateContent`, {
-          method: "POST",
-          signal: ctrl.signal,
-          headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: buildPrompt(text) }] }],
-            generationConfig: { temperature: 0.4, maxOutputTokens: 16384, responseMimeType: "application/json" }
-          })
-        });
+        r = await callGemini(model, key, text, ctrl.signal);
       } catch (e) {
         clearTimeout(timer);
         lastErr = e.name === "AbortError" ? "Gemini took too long to answer." : "Could not reach Gemini.";
